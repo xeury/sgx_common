@@ -190,6 +190,12 @@ pub fn create_enclave(enclave_filename: &str, debug: bool) -> SgxResult<SgxEncla
     Ok(enclave_id)
 }
 
+pub fn destroy_enclave(enclave_id: SgxEnclaveId) -> SgxStatus {
+    return SgxStatus::from(unsafe {
+        sgx_destroy_enclave(enclave_id)
+    })
+}
+
 pub fn init_quote() -> SgxResult<(u32, SgxTargetInfo)> {
     // NB: sgx_init_quote expects qe_target_info to be zeroed (undocumented!)
     let mut qe_target_info: SgxTargetInfo = Default::default();
