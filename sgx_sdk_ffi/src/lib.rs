@@ -249,7 +249,7 @@ pub fn get_quote(report: SgxReport, spid: &[u8; 16], sig_rl: &[u8]) -> SgxResult
     Ok(quote)
 }
 
-enum AttestationStatus {
+pub enum AttestationStatus {
     NoUpdateNeeded,
     UpdateNeeded(SgxUpdateInfo),
 }
