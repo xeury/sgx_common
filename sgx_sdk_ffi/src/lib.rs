@@ -258,8 +258,7 @@ pub fn report_attestation_status(
     let status = SgxStatus::from(unsafe {
         sgx_report_attestation_status(platform_info, attest_unsuccess, &mut update_info)
     });
-    let _ignore = status.ok()?;
-    return Ok(update_info);
+    return status.ok().map(|_| update_info);
 }
 
 fn get_sig_rl_ptr(sig_rl: &[u8]) -> (*const u8, u32) {
