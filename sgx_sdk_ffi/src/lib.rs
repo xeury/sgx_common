@@ -249,22 +249,25 @@ pub fn get_quote(report: SgxReport, spid: &[u8; 16], sig_rl: &[u8]) -> SgxResult
     Ok(quote)
 }
 
-/// report_attestation_status returns Ok if no update is needed or if the UpdateNeeded sgx status
-/// was seen. For any other errors, known or unknown, it returns Err.
+enum AttestationStatus {
+    NoUpdateNeeded,
+    UpdateNeeded(SgxUpdateInfo),
+}
+
 pub fn report_attestation_status(
     platform_info: &SgxPlatformInfo,
     attestation_successful: bool,
-) -> SgxResult<SgxUpdateInfo> {
+) -> SgxResult<AttestationStatus> {
     let mut update_info: SgxUpdateInfo = Default::default();
     let attest_unsuccess = (!attestation_successful) as i32;
     let status = SgxStatus::from(unsafe {
         sgx_report_attestation_status(platform_info, attest_unsuccess, &mut update_info)
     });
     return match status {
-        SgxStatus::Success => Ok(update_info),
+        SgxStatus::Success => Ok(AttestationStatus::NoUpdateNeeded),
         SgxStatus::Error(err) => {
             if err == SgxError::UpdateNeeded {
-                Ok(update_info)
+                Ok(AttestationStatus::UpdateNeeded(update_info))
             } else {
                 Err(SgxStatus::Error(err))
             }
