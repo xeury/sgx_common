@@ -15,7 +15,13 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#[allow(dead_code, non_snake_case, non_camel_case_types, non_upper_case_globals, improper_ctypes)]
+#[allow(
+    dead_code,
+    non_snake_case,
+    non_camel_case_types,
+    non_upper_case_globals,
+    improper_ctypes
+)]
 mod bindgen_wrapper;
 
 use std::fmt;
@@ -26,12 +32,15 @@ use std::ptr;
 use num_traits::FromPrimitive;
 
 use bindgen_wrapper::{
-    sgx_calc_quote_size, sgx_create_enclave, sgx_create_enclave_from_buffer_ex, sgx_destroy_enclave, sgx_get_quote, sgx_init_quote,
-    sgx_quote_t, sgx_spid_t, sgx_status_t, SGX_SUCCESS, SGX_UNLINKABLE_SIGNATURE,
+    sgx_calc_quote_size, sgx_create_enclave, sgx_create_enclave_from_buffer_ex,
+    sgx_destroy_enclave, sgx_get_quote, sgx_init_quote, sgx_quote_t, sgx_report_attestation_status,
+    sgx_spid_t, sgx_status_t, SGX_SUCCESS, SGX_UNLINKABLE_SIGNATURE,
 };
 
 pub use bindgen_wrapper::{
-    sgx_enclave_id_t as SgxEnclaveId, sgx_quote_t as SgxQuote, sgx_report_t as SgxReport, sgx_target_info_t as SgxTargetInfo,
+    sgx_enclave_id_t as SgxEnclaveId, sgx_platform_info_t as SgxPlatformInfo,
+    sgx_quote_t as SgxQuote, sgx_report_t as SgxReport, sgx_target_info_t as SgxTargetInfo,
+    sgx_update_info_bit_t as SgxUpdateInfo,
 };
 
 pub type SgxResult<T> = Result<T, SgxStatus>;
@@ -45,78 +54,78 @@ pub enum SgxStatus {
 
 #[derive(Debug, Copy, Clone, PartialEq, Eq, num_derive::FromPrimitive)]
 pub enum SgxError {
-    Unexpected                  = 1,
-    InvalidParameter            = 2,
-    OutOfMemory                 = 3,
-    EnclaveLost                 = 4,
-    InvalidState                = 5,
-    FeatureNotSupported         = 8,
-    InvalidFunction             = 4097,
-    OutOfTcs                    = 4099,
-    EnclaveCrashed              = 4102,
-    EcallNotAllowed             = 4103,
-    OcallNotAllowed             = 4104,
-    StackOverrun                = 4105,
-    UndefinedSymbol             = 8192,
-    InvalidEnclave              = 8193,
-    InvalidEnclaveId            = 8194,
-    InvalidSignature            = 8195,
-    NdebugEnclave               = 8196,
-    OutOfEpc                    = 8197,
-    NoDevice                    = 8198,
-    MemoryMapConflict           = 8199,
-    InvalidMetadata             = 8201,
-    DeviceBusy                  = 8204,
-    InvalidVersion              = 8205,
-    ModeIncompatible            = 8206,
-    EnclaveFileAccess           = 8207,
-    InvalidMisc                 = 8208,
-    InvalidLaunchToken          = 8209,
-    MacMismatch                 = 12289,
-    InvalidAttribute            = 12290,
-    InvalidCpusvn               = 12291,
-    InvalidIsvsvn               = 12292,
-    InvalidKeyname              = 12293,
-    ServiceUnavailable          = 16385,
-    ServiceTimeout              = 16386,
-    AeInvalidEpidblob           = 16387,
-    ServiceInvalidPrivilege     = 16388,
-    EpidMemberRevoked           = 16389,
-    UpdateNeeded                = 16390,
-    NetworkFailure              = 16391,
-    AeSessionInvalid            = 16392,
-    Busy                        = 16394,
-    McNotFound                  = 16396,
-    McNoAccessRight             = 16397,
-    McUsedUp                    = 16398,
-    McOverQuota                 = 16399,
-    KdfMismatch                 = 16401,
-    UnrecognizedPlatform        = 16402,
-    NoPrivilege                 = 20482,
-    PclEncrypted                = 24577,
-    PclNotEncrypted             = 24578,
-    PclMacMismatch              = 24579,
-    PclShaMismatch              = 24580,
-    PclGuidMismatch             = 24581,
-    FileBadStatus               = 28673,
-    FileNoKeyId                 = 28674,
-    FileNameMismatch            = 28675,
-    FileNotSgxFile              = 28676,
-    FileCantOpenRecoveryFile    = 28677,
-    FileCantWriteRecoveryFile   = 28678,
-    FileRecoveryNeeded          = 28679,
-    FileFlushFailed             = 28680,
-    FileCloseFailed             = 28681,
-    UnsupportedAttKeyId         = 32769,
-    AttKeyCertificationFailure  = 32770,
-    AttKeyUninitialized         = 32771,
-    InvalidAttKeyCertData       = 32772,
-    EnclaveCreateInterrupted    = 61441,
+    Unexpected = 1,
+    InvalidParameter = 2,
+    OutOfMemory = 3,
+    EnclaveLost = 4,
+    InvalidState = 5,
+    FeatureNotSupported = 8,
+    InvalidFunction = 4097,
+    OutOfTcs = 4099,
+    EnclaveCrashed = 4102,
+    EcallNotAllowed = 4103,
+    OcallNotAllowed = 4104,
+    StackOverrun = 4105,
+    UndefinedSymbol = 8192,
+    InvalidEnclave = 8193,
+    InvalidEnclaveId = 8194,
+    InvalidSignature = 8195,
+    NdebugEnclave = 8196,
+    OutOfEpc = 8197,
+    NoDevice = 8198,
+    MemoryMapConflict = 8199,
+    InvalidMetadata = 8201,
+    DeviceBusy = 8204,
+    InvalidVersion = 8205,
+    ModeIncompatible = 8206,
+    EnclaveFileAccess = 8207,
+    InvalidMisc = 8208,
+    InvalidLaunchToken = 8209,
+    MacMismatch = 12289,
+    InvalidAttribute = 12290,
+    InvalidCpusvn = 12291,
+    InvalidIsvsvn = 12292,
+    InvalidKeyname = 12293,
+    ServiceUnavailable = 16385,
+    ServiceTimeout = 16386,
+    AeInvalidEpidblob = 16387,
+    ServiceInvalidPrivilege = 16388,
+    EpidMemberRevoked = 16389,
+    UpdateNeeded = 16390,
+    NetworkFailure = 16391,
+    AeSessionInvalid = 16392,
+    Busy = 16394,
+    McNotFound = 16396,
+    McNoAccessRight = 16397,
+    McUsedUp = 16398,
+    McOverQuota = 16399,
+    KdfMismatch = 16401,
+    UnrecognizedPlatform = 16402,
+    NoPrivilege = 20482,
+    PclEncrypted = 24577,
+    PclNotEncrypted = 24578,
+    PclMacMismatch = 24579,
+    PclShaMismatch = 24580,
+    PclGuidMismatch = 24581,
+    FileBadStatus = 28673,
+    FileNoKeyId = 28674,
+    FileNameMismatch = 28675,
+    FileNotSgxFile = 28676,
+    FileCantOpenRecoveryFile = 28677,
+    FileCantWriteRecoveryFile = 28678,
+    FileRecoveryNeeded = 28679,
+    FileFlushFailed = 28680,
+    FileCloseFailed = 28681,
+    UnsupportedAttKeyId = 32769,
+    AttKeyCertificationFailure = 32770,
+    AttKeyUninitialized = 32771,
+    InvalidAttKeyCertData = 32772,
+    EnclaveCreateInterrupted = 61441,
     SgxsdPendingRequestNotFound = 65537,
 }
 
 pub struct SgxEnclave {
-    id:     SgxEnclaveId,
+    id: SgxEnclaveId,
     buffer: Option<(*mut u8, usize, usize)>,
 }
 
@@ -145,7 +154,7 @@ impl SgxEnclave {
         })
         .ok()?;
         Ok(SgxEnclave {
-            id:     enclave_id,
+            id: enclave_id,
             buffer: Some((buffer_ptr, buffer_len, buffer_cap)),
         })
     }
@@ -191,9 +200,7 @@ pub fn create_enclave(enclave_filename: &str, debug: bool) -> SgxResult<SgxEncla
 }
 
 pub fn destroy_enclave(enclave_id: SgxEnclaveId) -> SgxStatus {
-    return SgxStatus::from(unsafe {
-        sgx_destroy_enclave(enclave_id)
-    })
+    return SgxStatus::from(unsafe { sgx_destroy_enclave(enclave_id) });
 }
 
 pub fn init_quote() -> SgxResult<(u32, SgxTargetInfo)> {
@@ -242,6 +249,19 @@ pub fn get_quote(report: SgxReport, spid: &[u8; 16], sig_rl: &[u8]) -> SgxResult
     Ok(quote)
 }
 
+pub fn report_attestation_status(
+    platform_info: &SgxPlatformInfo,
+    attestation_successful: bool,
+) -> SgxResult<SgxUpdateInfo> {
+    let mut update_info: SgxUpdateInfo = Default::default();
+    let attest_unsuccess = (!attestation_successful) as i32;
+    let status = SgxStatus::from(unsafe {
+        sgx_report_attestation_status(platform_info, attest_unsuccess, &mut update_info)
+    });
+    let _ignore = status.ok()?;
+    return Ok(update_info);
+}
+
 fn get_sig_rl_ptr(sig_rl: &[u8]) -> (*const u8, u32) {
     match sig_rl.len() {
         0 => (std::ptr::null(), 0),
@@ -280,14 +300,14 @@ impl SgxStatus {
     pub fn ok(self) -> SgxResult<()> {
         match self {
             SgxStatus::Success => Ok(()),
-            status             => Err(status),
+            status => Err(status),
         }
     }
 
     pub fn err(&self) -> Option<&SgxError> {
         match self {
             SgxStatus::Error(error) => Some(error),
-            _                       => None,
+            _ => None,
         }
     }
 }
@@ -321,8 +341,8 @@ impl From<SgxError> for SgxStatus {
 impl From<SgxStatus> for sgx_status_t {
     fn from(sgx_status: SgxStatus) -> Self {
         match sgx_status {
-            SgxStatus::Success             => SGX_SUCCESS,
-            SgxStatus::Error(sgx_error)    => sgx_error.into(),
+            SgxStatus::Success => SGX_SUCCESS,
+            SgxStatus::Error(sgx_error) => sgx_error.into(),
             SgxStatus::Unknown(sgx_status) => sgx_status,
         }
     }
